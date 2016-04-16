@@ -1,5 +1,3 @@
-# text-files-copier
-
 #! /usr/bin/python3
 
 # The purpose of this Python script is to go through a folder, copy all the text within
