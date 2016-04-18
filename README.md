@@ -5,7 +5,7 @@ The reason I made this program was to take all the python files I had been using
 
 ## Features
 Search up into 4x sub directories,
-filter by keyword
+filter by keyword, and
 can copy from multiple file types
 
 ## Still needs
