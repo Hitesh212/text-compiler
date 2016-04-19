@@ -13,33 +13,33 @@ import re
 # adjust these variables
 
 # the file you are writing or appending to
-write_file_name = "/home/zhiwen/Desktop/copier-test.txt"
-mode = "w"
+write_file_name = "/home/zhiwen/Desktop/test.txt"
+mode = "a+"
 # check to see if there currently is a file of same name
 if os.path.isfile(write_file_name):
-    replace = input("{} is already a file, to replace file, input 'y': ".format(write_file_name))
+    replace = input("{} is already a file, to continue, input 'y': ".format(write_file_name))
     if replace != 'y':
         print("Not replacing")
         sys.exit()
 write_file = open(write_file_name, mode)
 
 # file extensions that will be read
-extension = (".py",".html",".js")
+extension = (".py, .html, .txt")
 
 # number of sub directory levels to transverse [0-4]
 level = 4
 
 # path to initial directory
-folder = ""
+folder = "Python 3 Essential Training"
 folder_directory_path = "/media/removable/SD Card/Lynda/" # needs a / at end
 initial_directory_path = folder_directory_path + folder
 
 # keywords to avoid reading or opening. Case sensitive. List None if not using.
-exclude_file = None
-exclude_folder = None
+exclude_file = "allscripts|reallybigfile|bigfile|new"
+exclude_folder = "Exercise Files"
 
 # initial for amount of files copied
-count = 0
+count = dict(copied=0, skipped=0)
 
 
 
@@ -72,6 +72,9 @@ def tests():
             print("Invalid folder keyword")
             sys.exit()
 
+# include directories from directory list based on keywordds
+def include(directory_list):
+    pass
 
 # exclude directories from directory list based on keywords
 def exclude(directory_list):
@@ -139,25 +142,54 @@ def setdirectory(directory):
 
 # read and write file
 def copyfile(file):
+    global count
+
     # file header format
     print("##### ", file, " #####", file = write_file)
     print(' ', file = write_file)
     read_file = open(file, 'r')
-    
-    # iterate through every line in file and write
-    for line in read_file:
-        print(line, file = write_file, end = '')
 
-    # file ending format    
-    print('_______________________________________', file = write_file)
-    print(' ', file = write_file)
-    print(' ', file = write_file)
-    
-    print('Copying "{}" '.format(file))
-    print(' ')
-    
-    global count
-    count += 1
+    # try to default copy file first
+    # if except for Unicode error then uses byte encoding to output
+    # characters to be read in an html file
+    try:
+        # copy files
+        for line in read_file:
+            print(line, file = write_file, end = '')
+
+        # file ending format
+        print('_______________________________________', file = write_file)
+        print(' ', file = write_file)
+        print(' ', file = write_file)
+
+        print('Copying "{}" '.format(file))
+        print(' ')
+
+    except UnicodeDecodeError:
+        # makes every character a byte then adjusts the ones that can't be read
+        read_file = open(file, encoding = 'utf_8')
+        for line in read_file:
+            byteline = bytearray()
+            for c in line:
+                if ord(c) > 127:
+                    byteline += bytes('&#{:04d};'.format(ord(c)), encoding='utf_8')
+                else:
+                    byteline.append(ord(c))
+            line = str(byteline, encoding='utf_8')
+            print(line, file=write_file, end='')
+
+        print('_______________________________________', file=write_file)
+        print(' ', file=write_file)
+        print(' ', file=write_file)
+
+        print('Copying "{}" '.format(file))
+        print(' ')
+
+    except:
+        print('Skipping "{}"'.format(file))
+        count["skipped"] += 1
+
+    count["copied"] += 1
 
     
 ## main
@@ -217,8 +249,10 @@ def main():
 
     # close file
     write_file.close()
-    print("Done! Copied {} files into {}".format(count, write_file_name))
-    
+    print("Done! Copied {} files into {}".format(count["copied"], write_file_name))
+
+    if count["skipped"] > 0:
+        print("Skipped {} files".format(count["skipped"]))
 
 if __name__ == "__main__":
     main()

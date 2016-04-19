@@ -9,7 +9,7 @@ filter by keyword, and
 can copy from multiple file types
 
 ## Still needs
-Ability to skip files that can't be decoded or find a workaround to decode
+Ability to only include certain keywords
 
 
 
