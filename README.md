@@ -8,8 +8,6 @@ Search up into 4x sub directories,
 filter by keyword, and
 can copy from multiple file types
 
-## Still needs
-Ability to only include certain keywords
 
 
 
