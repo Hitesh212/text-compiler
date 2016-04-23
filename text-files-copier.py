@@ -24,19 +24,23 @@ if os.path.isfile(write_file_name):
 write_file = open(write_file_name, mode)
 
 # file extensions that will be read
-extension = (".py, .html, .txt")
+extension = (".py", ".txt")
 
 # number of sub directory levels to transverse [0-4]
 level = 4
 
 # path to initial directory
 folder = "Python 3 Essential Training"
-folder_directory_path = "/media/removable/SD Card/Lynda/" # needs a / at end
+folder_directory_path = "/media/removable/SD Card/Lynda/Python/" # needs a / at end
 initial_directory_path = folder_directory_path + folder
 
 # keywords to avoid reading or opening. Case sensitive. List None if not using.
-exclude_file = "allscripts|reallybigfile|bigfile|new"
-exclude_folder = "Exercise Files"
+exclude_file = None
+exclude_folder = None
+
+# keywords to only read or open. Case sensitive. List None if not using.
+include_file = None
+include_folder = "02"
 
 # initial for amount of files copied
 count = dict(copied=0, skipped=0)
@@ -55,41 +59,81 @@ def tests():
         sys.exit()
 
     # exclude file keyword test
-    global patternfile
-    if exclude_file != None:
+    global epatternfile
+    if exclude_file is not None:
         try:
-            patternfile = re.compile(exclude_file)
+            epatternfile = re.compile(exclude_file)
         except:
-            print("Invalid file keyword")
+            print("Invalid exclude file keyword")
             sys.exit()
             
     # exclude folder keyword test
-    global patternfolder
-    if exclude_folder != None:
+    global epatternfolder
+    if exclude_folder is not None:
         try:
-            patternfolder = re.compile(exclude_folder)
+            epatternfolder = re.compile(exclude_folder)
         except:
-            print("Invalid folder keyword")
+            print("Invalid exclude folder keyword")
+            sys.exit()
+
+    # include file keyword test
+    global ipatternfile
+    if include_file is not None:
+        try:
+            ipatternfile = re.compile(include_file)
+        except:
+            print("Invalid include file keyword")
+            sys.exit()
+
+    # include folder keyword test
+    global ipatternfolder
+    if include_folder is not None:
+        try:
+            ipatternfolder = re.compile(include_folder)
+        except:
+            print("Invalid include folder keyword")
             sys.exit()
 
 # include directories from directory list based on keywordds
 def include(directory_list):
-    pass
+    include_list = []
+    if (include_folder is not None) or (include_file is not None):
+
+        # patternfolder and patternfile are initalized in test()
+        for directory in directory_list:
+            if os.path.isdir(directory) and include_folder is not None:
+                if re.search(ipatternfolder, directory):
+                    include_list.append(directory)
+            elif os.path.isdir(directory):
+                include_list.append(directory)
+            else: pass
+
+            if os.path.isfile(directory) and include_file is not None:
+                if re.search(ipatternfile, directory):
+                    include_list.append(directory)
+            elif os.path.isfile(directory):
+                include_list.append(directory)
+            else: pass
+
+    else:
+        include_list = directory_list
+
+    return include_list
+
 
 # exclude directories from directory list based on keywords
 def exclude(directory_list):
     excluded_list = []
-
-    if (exclude_folder != None) or (exclude_file != None):
+    if (exclude_folder is not None) or (exclude_file is not None):
 
         # patternfolder and patternfile are initalized in test()
         for directory in directory_list:
-            if os.path.isdir(directory) and exclude_folder != None:
-                if not re.search(patternfolder,directory):
+            if os.path.isdir(directory) and exclude_folder is not None:
+                if not re.search(epatternfolder,directory):
                     excluded_list.append(directory)
                     
-            elif os.path.isfile(directory) and exclude_file != None:
-                if not re.search(patternfile, directory):
+            elif os.path.isfile(directory) and exclude_file is not None:
+                if not re.search(epatternfile, directory):
                     excluded_list.append(directory)
                     
             else:
@@ -125,12 +169,15 @@ def setdirectory(directory):
     # get directory list
     directory_list = os.listdir()
 
+    # include directory list
+    directory_list = include(directory_list)
+
     # exclude directory list
     directory_list = exclude(directory_list)
           
     # sort directory list
     directory_list = sort_dir_list(directory_list)
-   
+
     # directory name format
     print("######## ",directory," ########", file = write_file)
     print(' ', file = write_file)
@@ -201,9 +248,7 @@ def main():
     print(" ", file = write_file)
       
     # create directory list and sort it
-    directory_list = os.listdir(initial_directory_path)
-    directory_list = exclude(directory_list)
-    directory_list = sort_dir_list(directory_list)
+    directory_list = setdirectory(initial_directory_path)
     
     # iterate through all folders and files down to sub x4 directories
     for directory in directory_list:
@@ -253,6 +298,8 @@ def main():
 
     if count["skipped"] > 0:
         print("Skipped {} files".format(count["skipped"]))
+
+    sys.exit()
 
 if __name__ == "__main__":
     main()
