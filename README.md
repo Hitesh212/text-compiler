@@ -1,4 +1,4 @@
-# text-files-copier
+# Text Compiler
 
 ## About
 This script searches thru your folders for plain text files and writes them all into one central file. It labels the files based on the folders they are in.
