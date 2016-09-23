@@ -1,10 +1,5 @@
 #! /usr/bin/python3
 
-# The purpose of this Python script is to transverse a directory, copy all the text within
-# designated file types, and write them into a designated file. The script labels
-# and formats the copied files based on their folder locations and file names.
-# Can read files within sub x4 directories
-
 import os
 import sys
 import re
